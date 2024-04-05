@@ -22,7 +22,6 @@ libapk_src = [
 	'fs_uvol.c',
 	'hash.c',
 	'io.c',
-	'io_url_libfetch.c',
 	'io_gunzip.c',
 	'package.c',
 	'pathbuilder.c',
@@ -86,6 +85,13 @@ apk_src = [
 	'app_vertest.c',
 	'applet.c',
 ]
+
+url_backend = get_option('url_backend')
+if url_backend == 'libfetch'
+	libapk_src += [	'io_url_libfetch.c' ]
+elif url_backend == 'wget'
+	libapk_src += [	'io_url_wget.c' ]
+endif
 
 if lua_bin.found()
 	genhelp_script = files('genhelp.lua')
