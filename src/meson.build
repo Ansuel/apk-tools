@@ -13,7 +13,6 @@ libapk_src = [
 	'common.c',
 	'context.c',
 	'crypto.c',
-	'crypto_openssl.c',
 	'ctype.c',
 	'database.c',
 	'extract_v2.c',
@@ -37,7 +36,6 @@ libapk_headers = [
 	'apk_atom.h',
 	'apk_blob.h',
 	'apk_crypto.h',
-	'apk_crypto_openssl.h',
 	'apk_ctype.h',
 	'apk_database.h',
 	'apk_defines.h',
@@ -86,11 +84,27 @@ apk_src = [
 	'applet.c',
 ]
 
+apk_cargs = [
+	'-DAPK_VERSION="' + meson.project_version() + '"',
+	'-D_ATFILE_SOURCE',
+]
+
 url_backend = get_option('url_backend')
 if url_backend == 'libfetch'
 	libapk_src += [	'io_url_libfetch.c' ]
 elif url_backend == 'wget'
 	libapk_src += [	'io_url_wget.c' ]
+endif
+
+crypto_backend = get_option('crypto_backend')
+if crypto_backend == 'openssl'
+	apk_cargs += [ '-DCRYPTO_USE_OPENSSL' ]
+	libapk_src += [ 'crypto_openssl.c' ]
+	libapk_headers += [ 'apk_crypto_openssl.h' ]
+elif crypto_backend == 'mbedtls'
+	apk_cargs += [ '-DCRYPTO_USE_MBEDTLS' ]
+	libapk_src += [ 'crypto_mbedtls.c' ]
+	libapk_headers += [ 'apk_crypto_mbedtls.h' ]
 endif
 
 if lua_bin.found()
@@ -118,11 +132,6 @@ else
 endif
 
 apk_src += [ generated_help ]
-
-apk_cargs = [
-	'-DAPK_VERSION="' + meson.project_version() + '"',
-	'-D_ATFILE_SOURCE',
-]
 
 apk_arch_prefix = get_option('arch_prefix')
 if apk_arch_prefix != ''
