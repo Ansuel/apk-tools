@@ -209,6 +209,8 @@ int apk_pkey_load(struct apk_pkey *pkey, int dirfd, const char *fn)
 		ret = mbedtls_pk_parse_key(key, buf, blen, NULL, 0);
 #endif
 	}
+	mbedtls_platform_zeroize(buf, blen);
+	mbedtls_free(buf);
 	if (ret != 0)
 		return -APKE_CRYPTO_KEY_FORMAT;
 
