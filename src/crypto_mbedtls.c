@@ -88,6 +88,9 @@ int apk_digest_ctx_final(struct apk_digest_ctx *dctx, struct apk_digest *d)
 		apk_digest_reset(d);
 		return -APKE_CRYPTO_ERROR;
 	}
+
+	mbedtls_md_free(dctx->mdctx);
+
 	d->alg = dctx->alg;
 	d->len = apk_digest_alg_len(d->alg);
 	return 0;
