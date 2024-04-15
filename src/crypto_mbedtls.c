@@ -59,7 +59,10 @@ int apk_digest_ctx_init(struct apk_digest_ctx *dctx, uint8_t alg)
 
 int apk_digest_ctx_reset(struct apk_digest_ctx *dctx, uint8_t alg)
 {
-	if (mbedtls_md_starts(dctx->mdctx))
+	mbedtls_md_free(dctx->mdctx);
+
+	if (mbedtls_md_setup(dctx->mdctx, apk_digest_alg_to_mdinfo(alg), 0) ||
+		mbedtls_md_starts(dctx->mdctx))
 		return -APKE_CRYPTO_ERROR;
 	
 	dctx->alg = alg;
@@ -226,8 +229,7 @@ int apk_sign_start(struct apk_digest_ctx *dctx, uint8_t alg, struct apk_pkey *pk
 {
 	if (apk_digest_ctx_reset(dctx, alg))
 		return -APKE_CRYPTO_ERROR;
-	
-	dctx->alg = alg;
+
 	dctx->sigver_key = pkey;
 
 	return 0;
@@ -259,7 +261,6 @@ int apk_verify_start(struct apk_digest_ctx *dctx, uint8_t alg, struct apk_pkey *
 	if (apk_digest_ctx_reset(dctx, alg))
 		return -APKE_CRYPTO_ERROR;
 
-	dctx->alg = alg;
 	dctx->sigver_key = pkey;
 
 	return 0;
