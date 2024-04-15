@@ -194,7 +194,7 @@ int apk_pkey_load(struct apk_pkey *pkey, int dirfd, const char *fn)
 	if (fd < 0)
 		return -errno;
 
-	key = malloc(sizeof key);
+	key = malloc(sizeof *key);
 	if (!key)
 		return -ENOMEM;
 	
