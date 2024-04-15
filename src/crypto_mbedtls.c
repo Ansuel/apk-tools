@@ -160,13 +160,18 @@ int mbedtls_pk_load_file_fd(int fd, unsigned char **buf, size_t *n)
 static int apk_pkey_init(struct apk_pkey *pkey, mbedtls_pk_context *key)
 {
 	unsigned char dig[APK_DIGEST_MAX_LENGTH], *pub = NULL;
+	unsigned char *c;
 	//unsigned int dlen = sizeof dig;
-	int len, r = -APKE_CRYPTO_ERROR;
+	int len, publen, r = -APKE_CRYPTO_ERROR;
 
-// ----- TODO: FIXME:
-	if ((len = i2d_PublicKey(key, &pub)) < 0) return -APKE_CRYPTO_ERROR;
-// -----
+	// Assume byte len is always * 2 + NULL terminated
+	publen = mbedtls_pk_get_len(key) * 2 + 1;
+	pub = malloc(publen);
+	if (!pub)
+		return -ENOMEM;
+	c = pub + publen;
 
+	if ((len = mbedtls_pk_write_pubkey(&c, pub, key)) < 0) return -APKE_CRYPTO_ERROR;
 	if (!mbedtls_md(apk_digest_alg_to_mdinfo(APK_DIGEST_SHA512), pub, len, dig)) {
 		memcpy(pkey->id, dig, sizeof pkey->id);
 		r = 0;
