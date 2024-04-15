@@ -68,7 +68,7 @@ int apk_digest_ctx_reset(struct apk_digest_ctx *dctx, uint8_t alg)
 
 void apk_digest_ctx_free(struct apk_digest_ctx *dctx)
 {
-	mbedtls_md_free(dctx->mdctx);
+	free(dctx->mdctx);
 	dctx->mdctx = 0;
 }
 
